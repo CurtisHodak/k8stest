@@ -6,10 +6,10 @@ resource "aws_vpc" "eks_vpc" {
 }
 
 resource "aws_subnet" "public_eks_subnet" {
-  count 	    = 2
-  vpc_id            = aws_vpc.eks_vpc.id
-  cidr_block        = element(["172.20.1.0/24", "172.20.2.0/24"], count.index)
-  availability_zone = element(["us-east-2a", "us-east-2b"], count.index)  
+  count                   = 2
+  vpc_id                  = aws_vpc.eks_vpc.id
+  cidr_block              = element(["172.20.1.0/24", "172.20.2.0/24"], count.index)
+  availability_zone       = element(["us-east-2a", "us-east-2b"], count.index)
   map_public_ip_on_launch = true
   tags = {
     Name = "eks-public-subnet-${count.index}"
@@ -17,10 +17,10 @@ resource "aws_subnet" "public_eks_subnet" {
 }
 
 resource "aws_subnet" "private_eks_subnet" {
-  count             = 2
-  vpc_id            = aws_vpc.eks_vpc.id
-  cidr_block        = element(["172.20.3.0/24", "172.20.4.0/24"], count.index)
-  availability_zone = element(["us-east-2a", "us-east-2b"], count.index)
+  count                   = 2
+  vpc_id                  = aws_vpc.eks_vpc.id
+  cidr_block              = element(["172.20.3.0/24", "172.20.4.0/24"], count.index)
+  availability_zone       = element(["us-east-2a", "us-east-2b"], count.index)
   map_public_ip_on_launch = true
   tags = {
     Name = "eks-private-subnet-${count.index}"
@@ -71,9 +71,9 @@ resource "aws_security_group" "eks_node_sg" {
   description = "EKS worker node security group"
   vpc_id      = aws_vpc.eks_vpc.id
   ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
     security_groups = [
       aws_security_group.eks_cluster_sg.id
     ]
@@ -147,7 +147,7 @@ resource "aws_eks_cluster" "eks_cluster" {
   name     = "my-eks-cluster"
   role_arn = aws_iam_role.eks_role.arn
   vpc_config {
-    subnet_ids = aws_subnet.private_eks_subnet[*].id
+    subnet_ids         = aws_subnet.private_eks_subnet[*].id
     security_group_ids = [aws_security_group.eks_cluster_sg.id]
   }
   access_config {
@@ -170,7 +170,7 @@ resource "aws_eks_node_group" "eks_node_group" {
 
   instance_types = ["t3.medium"]
   remote_access {
-    ec2_ssh_key = "aws-key"  # Replace with your key pair name
+    ec2_ssh_key = "aws-key" # Replace with your key pair name
   }
 
   update_config {
@@ -269,33 +269,33 @@ output "nginx_load_balancer_ip" {
 }
 
 resource "aws_eks_access_entry" "sso" {
-  cluster_name      = aws_eks_cluster.eks_cluster.name
-  principal_arn     = "arn:aws:iam::810524592282:role/aws-reserved/sso.amazonaws.com/eu-west-1/AWSReservedSSO_AWSAdministratorAccess_b8c8e528c1e2f9aa"
-  type              = "STANDARD"
+  cluster_name  = aws_eks_cluster.eks_cluster.name
+  principal_arn = "arn:aws:iam::810524592282:role/aws-reserved/sso.amazonaws.com/eu-west-1/AWSReservedSSO_AWSAdministratorAccess_b8c8e528c1e2f9aa"
+  type          = "STANDARD"
 }
 
 resource "aws_eks_access_entry" "spacelift" {
-  cluster_name      = aws_eks_cluster.eks_cluster.name
-  principal_arn     = "arn:aws:iam::810524592282:role/spacelift_role"
-  type              = "STANDARD"
+  cluster_name  = aws_eks_cluster.eks_cluster.name
+  principal_arn = "arn:aws:iam::810524592282:role/spacelift_role"
+  type          = "STANDARD"
 }
 
 resource "aws_eks_access_policy_association" "spacelift" {
-  cluster_name  = aws_eks_cluster.example.name
+  cluster_name  = aws_eks_cluster.eks_cluster.name
   policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy"
   principal_arn = "arn:aws:iam::810524592282:role/spacelift_role"
 
   access_scope {
-    type       = "cluster"
+    type = "cluster"
   }
 }
 
 resource "aws_eks_access_policy_association" "sso" {
-  cluster_name  = aws_eks_cluster.example.name
+  cluster_name  = aws_eks_cluster.eks_cluster.name
   policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy"
-  principal_arn     = "arn:aws:iam::810524592282:role/aws-reserved/sso.amazonaws.com/eu-west-1/AWSReservedSSO_AWSAdministratorAccess_b8c8e528c1e2f9aa"
+  principal_arn = "arn:aws:iam::810524592282:role/aws-reserved/sso.amazonaws.com/eu-west-1/AWSReservedSSO_AWSAdministratorAccess_b8c8e528c1e2f9aa"
 
   access_scope {
-    type       = "cluster"
+    type = "cluster"
   }
 }
