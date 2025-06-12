@@ -153,7 +153,7 @@ resource "aws_eks_cluster" "eks_cluster" {
   access_config {
     authentication_mode = "API_AND_CONFIG_MAP"
   }
-  
+
   depends_on = [aws_iam_role_policy_attachment.eks_policy]
 }
 
@@ -266,4 +266,36 @@ resource "kubernetes_service" "nginx" {
 #Output Load Balancer IP to access from browser
 output "nginx_load_balancer_ip" {
   value = kubernetes_service.nginx.status[0].load_balancer[0].ingress[0].ip
+}
+
+resource "aws_eks_access_entry" "sso" {
+  cluster_name      = aws_eks_cluster.eks_cluster.name
+  principal_arn     = "arn:aws:iam::810524592282:role/aws-reserved/sso.amazonaws.com/eu-west-1/AWSReservedSSO_AWSAdministratorAccess_b8c8e528c1e2f9aa"
+  type              = "STANDARD"
+}
+
+resource "aws_eks_access_entry" "spacelift" {
+  cluster_name      = aws_eks_cluster.eks_cluster.name
+  principal_arn     = "arn:aws:iam::810524592282:role/spacelift_role"
+  type              = "STANDARD"
+}
+
+resource "aws_eks_access_policy_association" "spacelift" {
+  cluster_name  = aws_eks_cluster.example.name
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy"
+  principal_arn = "arn:aws:iam::810524592282:role/spacelift_role"
+
+  access_scope {
+    type       = "cluster"
+  }
+}
+
+resource "aws_eks_access_policy_association" "sso" {
+  cluster_name  = aws_eks_cluster.example.name
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy"
+  principal_arn     = "arn:aws:iam::810524592282:role/aws-reserved/sso.amazonaws.com/eu-west-1/AWSReservedSSO_AWSAdministratorAccess_b8c8e528c1e2f9aa"
+
+  access_scope {
+    type       = "cluster"
+  }
 }
