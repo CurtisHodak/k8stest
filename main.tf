@@ -151,7 +151,7 @@ resource "aws_eks_cluster" "eks_cluster" {
     security_group_ids = [aws_security_group.eks_cluster_sg.id]
   }
   access_config {
-    authentication_mode = API_AND_CONFIGMAP
+    authentication_mode = "API_AND_CONFIGMAP"
   }
   depends_on = [aws_iam_role_policy_attachment.eks_policy]
 }
