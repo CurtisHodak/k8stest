@@ -3,7 +3,6 @@ terraform {
     aws = {
       source = "hashicorp/aws"
       version = "5.54.1"
-      region = "us-east-2"
     }
     kubernetes = {
       source = "hashicorp/kubernetes"
@@ -12,4 +11,5 @@ terraform {
   }
 }
 provider "aws" {
+  region = "us-east-2"
 }
