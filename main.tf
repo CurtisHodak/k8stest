@@ -170,7 +170,7 @@ resource "aws_eks_node_group" "eks_node_group" {
 
   instance_types = ["t3.medium"]
   remote_access {
-    ec2_ssh_key = "aws-key" # Replace with your key pair name
+    ec2_ssh_key = "chkey1" # Replace with your key pair name
   }
 
   update_config {
