@@ -150,6 +150,9 @@ resource "aws_eks_cluster" "eks_cluster" {
     subnet_ids = aws_subnet.private_eks_subnet[*].id
     security_group_ids = [aws_security_group.eks_cluster_sg.id]
   }
+  access_config {
+    authentication_mode = API_AND_CONFIGMAP
+  }
   depends_on = [aws_iam_role_policy_attachment.eks_policy]
 }
 
